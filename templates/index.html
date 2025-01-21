@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation and Weather App</title>
+    <script>
+        let latitude, longitude;
+
+        async function fetchLocation() {
+            const resultDiv = document.getElementById("result");
+
+            if (!navigator.geolocation) {
+                resultDiv.textContent = "Geolocation is not supported by your browser.";
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    latitude = position.coords.latitude;
+                    longitude = position.coords.longitude;
+                    try {
+                        const response = await fetch("/get_location", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ ip_address: `${latitude},${longitude}` })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            resultDiv.textContent = JSON.stringify(data, null, 2);
+                        } else {
+                            const error = await response.json();
+                            resultDiv.textContent = error.error || "An error occurred.";
+                        }
+                    } catch (error) {
+                        resultDiv.textContent = "Failed to fetch location data.";
+                    }
+                },
+                () => {
+                    resultDiv.textContent = "Unable to retrieve your location.";
+                }
+            );
+        }
+
+        async function fetchWeather() {
+            const weatherDiv = document.getElementById("weather");
+
+            if (!latitude || !longitude) {
+                weatherDiv.textContent = "Please get your location first.";
+                return;
+            }
+
+            try {
+                const response = await fetch("/get_weather", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ latitude, longitude })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    weatherDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    const error = await response.json();
+                    weatherDiv.textContent = error.error || "An error occurred.";
+                }
+            } catch (error) {
+                weatherDiv.textContent = "Failed to fetch weather data.";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Geolocation and Weather App</h1>
+    <p>Click the button to detect your current location and get location data:</p>
+    <button onclick="fetchLocation()">Get My Location</button>
+    <pre id="result" style="background: #f0f0f0; padding: 10px; border: 1px solid #ccc;"></pre>
+
+    <p>Click the button to get the weather information for your location:</p>
+    <button onclick="fetchWeather()">Get Weather Info</button>
+    <pre id="weather" style="background: #f0f0f0; padding: 10px; border: 1px solid #ccc;"></pre>
+</body>
+</html>
