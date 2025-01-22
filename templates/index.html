@@ -4,9 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity Suggestions</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <style>
+        #map {
+            height: 500px;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+
     <script>
         async function fetchSuggestions() {
             const resultDiv = document.getElementById("result");
+            const mapDiv = document.getElementById("map");
 
             if (!navigator.geolocation) {
                 resultDiv.textContent = "Geolocation is not supported by your browser.";
@@ -17,7 +33,6 @@
                 async (position) => {
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
-                    //const timeOfDay = document.getElementById("time_of_day").value;
 
                     try {
                         const response = await fetch("/get_suggestions", {
@@ -25,16 +40,34 @@
                             headers: {
                                 "Content-Type": "application/json"
                             },
-                            body: JSON.stringify({ latitude, longitude})
+                            body: JSON.stringify({ latitude, longitude })
                         });
 
                         if (response.ok) {
                             const data = await response.json();
+                            
                             resultDiv.innerHTML = `
                                 <p><strong>Weather:</strong> ${data.weather}, <strong>Temperature:</strong> ${data.temperature}°C</p>
                                 <p><strong>Suggestions:</strong></p>
                                 <pre>${data.suggestions}</pre>
+                                <p><strong>Places with Coordinates:</strong></p>
                             `;
+
+                            const map = L.map(mapDiv).setView([latitude, longitude], 12);
+
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '© OpenStreetMap contributors'
+                            }).addTo(map);
+
+                            L.marker([latitude, longitude]).addTo(map)
+                                .bindPopup("Your Location")
+                                .openPopup();
+
+                            data.places_with_coordinates.forEach(place => {
+                                L.marker([place.latitude, place.longitude]).addTo(map)
+                                    .bindPopup(`<strong>${place.place}</strong>`)
+                                    .openPopup();
+                            });
                         } else {
                             const error = await response.json();
                             resultDiv.textContent = error.error || "An error occurred.";
@@ -55,5 +88,6 @@
 
     <button onclick="fetchSuggestions()">Get Suggestions</button>
     <div id="result" style="background: #f0f0f0; padding: 10px; border: 1px solid #ccc; margin-top: 20px;"></div>
+    <div id="map"></div>
 </body>
 </html>
