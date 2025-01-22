@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geolocation and Weather App</title>
+    <title>Activity Suggestions</title>
     <script>
-        let latitude, longitude;
-
-        async function fetchLocation() {
+        async function fetchSuggestions() {
             const resultDiv = document.getElementById("result");
 
             if (!navigator.geolocation) {
@@ -17,26 +15,32 @@
 
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
-                    latitude = position.coords.latitude;
-                    longitude = position.coords.longitude;
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    //const timeOfDay = document.getElementById("time_of_day").value;
+
                     try {
-                        const response = await fetch("/get_location", {
+                        const response = await fetch("/get_suggestions", {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json"
                             },
-                            body: JSON.stringify({ ip_address: `${latitude},${longitude}` })
+                            body: JSON.stringify({ latitude, longitude})
                         });
 
                         if (response.ok) {
                             const data = await response.json();
-                            resultDiv.textContent = JSON.stringify(data, null, 2);
+                            resultDiv.innerHTML = `
+                                <p><strong>Weather:</strong> ${data.weather}, <strong>Temperature:</strong> ${data.temperature}°C</p>
+                                <p><strong>Suggestions:</strong></p>
+                                <pre>${data.suggestions}</pre>
+                            `;
                         } else {
                             const error = await response.json();
                             resultDiv.textContent = error.error || "An error occurred.";
                         }
                     } catch (error) {
-                        resultDiv.textContent = "Failed to fetch location data.";
+                        resultDiv.textContent = "Failed to fetch suggestions.";
                     }
                 },
                 () => {
@@ -44,45 +48,12 @@
                 }
             );
         }
-
-        async function fetchWeather() {
-            const weatherDiv = document.getElementById("weather");
-
-            if (!latitude || !longitude) {
-                weatherDiv.textContent = "Please get your location first.";
-                return;
-            }
-
-            try {
-                const response = await fetch("/get_weather", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ latitude, longitude })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    weatherDiv.textContent = JSON.stringify(data, null, 2);
-                } else {
-                    const error = await response.json();
-                    weatherDiv.textContent = error.error || "An error occurred.";
-                }
-            } catch (error) {
-                weatherDiv.textContent = "Failed to fetch weather data.";
-            }
-        }
     </script>
 </head>
 <body>
-    <h1>Geolocation and Weather App</h1>
-    <p>Click the button to detect your current location and get location data:</p>
-    <button onclick="fetchLocation()">Get My Location</button>
-    <pre id="result" style="background: #f0f0f0; padding: 10px; border: 1px solid #ccc;"></pre>
+    <h1>Activity Suggestions Based on Weather</h1>
 
-    <p>Click the button to get the weather information for your location:</p>
-    <button onclick="fetchWeather()">Get Weather Info</button>
-    <pre id="weather" style="background: #f0f0f0; padding: 10px; border: 1px solid #ccc;"></pre>
+    <button onclick="fetchSuggestions()">Get Suggestions</button>
+    <div id="result" style="background: #f0f0f0; padding: 10px; border: 1px solid #ccc; margin-top: 20px;"></div>
 </body>
 </html>
