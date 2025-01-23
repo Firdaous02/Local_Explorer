@@ -1,11 +1,25 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session
 import requests
 import openai
 from datetime import datetime
 import json
 import re
+from dotenv import load_dotenv
+import os
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+
+# MySQL Configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:@localhost:3308/local_explorer'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
+load_dotenv()
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_key_for_dev_only')
+
+db = SQLAlchemy(app)
 
 #GEOLOCATION_API_KEY = "c35a267b91d84a12ad287e192b3868c6"
 WEATHER_API_KEY = "a0aa9fb25cde4fe77e244112130cbc3a"
@@ -17,6 +31,76 @@ OPENCAGE_API_KEY = "cb75a1dca26045d696013cb5cf1e75f2"
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/suggestion")
+def suggestion():
+    return render_template("suggestion.html")
+
+@app.route('/get_started')
+def get_started():
+    if 'user_id' in session:
+        return redirect(url_for('suggestion'))
+    else:
+        flash('You need to log in first!', 'warning')
+        return redirect(url_for('login'))
+ 
+
+# User Model
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+
+# Route for the login page
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Query the database for the user
+        user = User.query.filter_by(username=username).first()
+
+        if user and check_password_hash(user.password, password):
+            session['user_id'] = user.id
+            flash('Login successful!', 'success')
+            return redirect(url_for('suggestion'))
+        else:
+            flash('Incorrect username or password.', 'danger')
+            return redirect(url_for('login'))
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    # Clear the user session
+    session.clear()
+    flash('You have been logged out successfully!', 'info')
+    return redirect(url_for('index'))
+
+# Route for the registration page
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Hash the password
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
+
+        # Add the user to the database
+        new_user = User(username=username, password=hashed_password)
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful!', 'success')
+            return redirect(url_for('suggestion'))
+        except:
+            flash('Username already exists. Try another one.', 'danger')
+            return redirect(url_for('register'))
+    
+    return render_template('register.html')
+
 
 @app.route("/get_suggestions", methods=["POST"])
 def get_suggestions():
@@ -73,16 +157,15 @@ def get_suggestions():
         json_gpt_response = response['choices'][0]['message']['content'].strip()
         print("Réponse brute de GPT:", json_gpt_response)
 
-        places = extract_address_from_json(json_gpt_response)
-        places_with_coordinates = get_places_coordinates(places, OPENCAGE_API_KEY)
+        suggestions_with_coordinates = get_places_coordinates(json_gpt_response, OPENCAGE_API_KEY)
 
 
-        return jsonify({"suggestions": json_gpt_response, "places_with_coordinates": places_with_coordinates, "weather": weather_description, "temperature": temperature})
+        return jsonify({"suggestions": suggestions_with_coordinates, "weather": weather_description, "temperature": temperature})
     except Exception as e:
         return jsonify({"error": f"Failed to generate activity suggestions: {str(e)}"}), 500
 
 
-def extract_address_from_json(response):
+def clean_gpt_response(response):
     try:
         cleaned_response = re.sub(r"^```[a-z]*\n", "", response.strip(), flags=re.MULTILINE)
         cleaned_response = cleaned_response.strip("```").strip()
@@ -96,14 +179,14 @@ def extract_address_from_json(response):
             print("La réponse JSON attendue est une liste.")
             return []
         
-        addresses = [item['address'] for item in data if 'address' in item]
-        print("Adresses extraites:", addresses)
-        return addresses
+        # addresses = [item['address'] for item in data if 'address' in item]
+        # print("Adresses extraites:", addresses)
+        return data
     except json.JSONDecodeError as e:
         print("Erreur de décodage JSON:", e)
         return []
     except KeyError as e:
-        print("Erreur KeyError lors de l'extraction des adresses:", e)
+        print("Erreur KeyError lors de l'extraction:", e)
         return []
 
 
@@ -121,18 +204,39 @@ def get_coordinates_from_opencage(place_name, api_key):
             return location['lat'], location['lng']
     return None, None
 
-def get_places_coordinates(places, api_key):
+# def get_places_coordinates(places, api_key):
+#     places_with_coordinates = []
+#     for place in places:
+#         lat, lng = get_coordinates_from_opencage(place, api_key)
+#         if lat and lng:
+#             places_with_coordinates.append({
+#                 "place": place,
+#                 "latitude": lat,
+#                 "longitude": lng
+#             })
+#         print("Places with coordinates:", places_with_coordinates)
+#     return places_with_coordinates
+
+def get_places_coordinates(response, api_key):
+    suggestions = clean_gpt_response(response)
+    print("Suggestions from get_places_coordinates:", suggestions)
     places_with_coordinates = []
-    for place in places:
-        lat, lng = get_coordinates_from_opencage(place, api_key)
+    for suggestion in suggestions:
+        query = f"{suggestion['place']}, {suggestion['address']}"
+        lat, lng = get_coordinates_from_opencage(query, api_key)
         if lat and lng:
             places_with_coordinates.append({
-                "place": place,
+                "place": suggestion['place'],
+                "address": suggestion['address'],
+                "activity": suggestion['activity'],
+                "description": suggestion['description'],
                 "latitude": lat,
                 "longitude": lng
             })
         print("Places with coordinates:", places_with_coordinates)
     return places_with_coordinates
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            
+            <div>
+                <input type="checkbox" id="location-agreement" name="location-agreement" required>
+                <label for="location-agreement">I agree to the use of my location</label>
+            </div>
+            
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Suggestions</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Hammer.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        #result {
+            width: 100%;
+            max-width: 400px; /* Limite la largeur des cartes */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            height: 500px; /* Hauteur fixe pour le conteneur des cartes */
+        }
+
+        .map-container {
+            height: 200px; /* Réduire la hauteur de la carte */
+            width: 100%;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .suggestion-container {
+            width: 100%;
+            max-width: 400px; /* Largeur maximale des cartes */
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0; /* Masquer toutes les cartes par défaut */
+            pointer-events: none; /* Désactiver les interactions par défaut */
+        }
+
+        .suggestion-container.active {
+            opacity: 1; /* Afficher la carte active */
+            pointer-events: auto; /* Activer les interactions pour la carte active */
+        }
+
+        .suggestion-container.hidden {
+            display: none; /* Masquer complètement la carte */
+        }
+
+        /* Style pour custom FontAwesome markers */
+        .custom-marker {
+            background-color: #ff0000; /* Red background color */
+            color: white; /* Icon color */
+            font-size: 16px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%; /* Circular shape */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            border: 2px solid white;
+        }
+
+        /* Style pour le marqueur de l'utilisateur */
+        .user-marker {
+            background-color: #007bff; /* Background color */
+            color: white; /* Icon color */
+            font-size: 16px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%; /* Circular shape */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            border: 2px solid white;
+        }
+
+        /* Style pour les cartes swipées */
+        .swiped-left {
+            transform: translateX(-150%) translateX(-50%);
+            opacity: 0;
+        }
+
+        .swiped-right {
+            transform: translateX(150%) translateX(-50%);
+            opacity: 0;
+        }
+    </style>
+
+    <script>
+        let currentIndex = 0; // Index de la carte actuellement affichée
+        let suggestions = []; // Liste des suggestions
+
+        async function fetchSuggestions() {
+            const resultDiv = document.getElementById("result");
+
+            if (!navigator.geolocation) {
+                resultDiv.textContent = "Geolocation is not supported by your browser.";
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                try {
+                    const response = await fetch("/get_suggestions", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ latitude, longitude })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        // Afficher les informations météo
+                        resultDiv.innerHTML = 
+                            `<p><strong>Weather:</strong> ${data.weather}, <strong>Temperature:</strong> ${data.temperature}°C</p>
+                            <p><strong>Suggestions:</strong></p>`;
+
+                        suggestions = data.suggestions;
+
+                        // Ajouter chaque suggestion avec une carte
+                        suggestions.forEach((item, index) => {
+                            const suggestionContainer = document.createElement("div");
+                            suggestionContainer.className = "suggestion-container";
+
+                            suggestionContainer.innerHTML = 
+                                `<h3>${item.activity}</h3>
+                                <p><strong>Place:</strong> ${item.place}</p>
+                                <p><strong>Address:</strong> ${item.address}</p>
+                                <p>${item.description}</p>
+                                <div id="map-${index}" class="map-container"></div>`;
+
+                            resultDiv.appendChild(suggestionContainer);
+
+                            // Initialiser une carte Leaflet pour chaque suggestion
+                            const map = L.map(`map-${index}`).setView([item.latitude, item.longitude], 13);
+
+                            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                                attribution: "© OpenStreetMap contributors"
+                            }).addTo(map);
+
+                            // Créer un marqueur personnalisé avec FontAwesome pour la suggestion
+                            const customIcon = L.divIcon({
+                                className: 'custom-marker', // Style CSS pour le marqueur
+                                html: '<i class="fa-solid fa-location-dot"></i>', // Icône FontAwesome
+                                iconSize: [30, 30], // Taille de l'icône
+                                iconAnchor: [15, 15] // Point d'ancrage
+                            });
+
+                            L.marker([item.latitude, item.longitude], { icon: customIcon })
+                                .addTo(map)
+                                .bindPopup(`<strong>${item.place}</strong><br>${item.address}`)
+                                .openPopup();
+
+                            // Créer un marqueur rouge pour la position de l'utilisateur
+                            const userIcon = L.divIcon({
+                                className: 'user-marker', // Style CSS pour le marqueur
+                                html: '<i class="fa-solid fa-user"></i>', // Icône FontAwesome
+                                iconSize: [30, 30], // Taille de l'icône
+                                iconAnchor: [15, 15] // Point d'ancrage
+                            });
+
+                            L.marker([latitude, longitude], { icon: userIcon })
+                                .addTo(map)
+                                .bindPopup('Your Location')
+                                .openPopup();
+
+                            // Activer le swipe sur la carte
+                            const hammer = new Hammer(suggestionContainer);
+                            hammer.on('swipeleft swiperight', (event) => {
+                                if (event.type === 'swipeleft') {
+                                    suggestionContainer.classList.add('swiped-left');
+                                    console.log('Suggestion disliked:', item.activity);
+                                } else if (event.type === 'swiperight') {
+                                    suggestionContainer.classList.add('swiped-right');
+                                    console.log('Suggestion liked:', item.activity);
+                                }
+
+                                // Masquer la carte après l'animation
+                                setTimeout(() => {
+                                    suggestionContainer.classList.add('hidden');
+                                    showNextCard();
+                                }, 300);
+                            });
+                        });
+
+                        // Afficher la première carte
+                        showNextCard();
+                    } else {
+                        const error = await response.json();
+                        resultDiv.textContent = error.error || "An error occurred.";
+                    }
+                } catch (error) {
+                    resultDiv.textContent = "Failed to fetch suggestions.";
+                }
+            }, () => {
+                resultDiv.textContent = "Unable to retrieve your location.";
+            });
+        }
+
+        function showNextCard() {
+            const cards = document.querySelectorAll('.suggestion-container');
+            if (currentIndex < cards.length) {
+                // Masquer toutes les cartes
+                cards.forEach(card => card.classList.remove('active'));
+
+                // Afficher la carte actuelle
+                cards[currentIndex].classList.add('active');
+                currentIndex++;
+            } else {
+                // Plus de cartes à afficher
+                document.getElementById('result').innerHTML += '<p>No more suggestions.</p>';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchSuggestions(); // Fetch suggestions automatically once page is loaded
+        });
+    </script>
+</head>
+<body>
+    <h1>Activity Suggestions Based on Weather</h1>
+
+    <button onclick="fetchSuggestions()">Get Suggestions</button>
+    <div id="result" style="margin-top: 20px;"></div>
+</body>
+</html>
