@@ -21,10 +21,10 @@ this platform delivers personalized recommendations tailored to your preferences
 ## About the Project
 
 Local Explorer is designed to simplify activity discovery and enhance your leisure time. 
-With location-based suggestions and a user-friendly design, the platform helps users find events and activities effortlessly.
+With location and weather-based suggestions and a user-friendly design, the platform helps users find events and activities effortlessly.
 
 ### Key Objectives
-- Provide **personalized activity recommendations** based on user preferences.
+- Provide **personalized activity and place recommendations** based on user preferences and weather.
 - Facilitate **location-based discovery** with an interactive map.
 - Deliver an engaging and intuitive user experience.
 
