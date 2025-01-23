@@ -10,11 +10,12 @@ this platform delivers personalized recommendations tailored to your preferences
 ## Table of Contents
 1. About the Project  
 2. Features  
-3. Tech Stack  
-4. Installation  
-5. Usage  
-6. Screenshots  
-7. Future Enhancements  
+3. Tech Stack
+4. Prerequisites
+5. Installation  
+6. Usage  
+7. Screenshots  
+8. Future Enhancements  
 
 ---
 
@@ -44,12 +45,20 @@ With location and weather-based suggestions and a user-friendly design, the plat
 ## Tech Stack
 - **Backend**: Python (Flask framework)  
 - **Frontend**: HTML5, CSS3, JavaScript  
-- **Mapping Library**: [Leaflet.js](https://leafletjs.com/)  
-- **Styling**: Custom CSS
+- **Mapping Library**: [Leaflet.js](https://leafletjs.com/)
+- **APIs**: OpenCage, OpenweatherMap, gpt-4o-mini
 - **Deployment**: Local environment (Flask development server)
 
 ---
+## Prerequisites
 
+Before getting started, make sure you have the following installed:
+
+- **Python 3.x**: [Download Python](https://www.python.org/downloads/)
+- **MySQL Server**: [Download MySQL](https://dev.mysql.com/downloads/mysql/)
+- **Git**: [Download Git](https://git-scm.com/downloads)
+
+---
 ## Installation
 
 Follow these steps to set up the project locally:
