@@ -104,6 +104,17 @@ _A layout showcasing the platform's core features with images, titles, and descr
 
 ![Features Section](https://via.placeholder.com/800x400)  
 
+### Login or Register
+_The users can log in if they already have an account, and if they don't, they are required to register._
+
+![Login](https://via.placeholder.com/800x400)  
+![Register](https://via.placeholder.com/800x400)  
+
+### Suggestions Page
+_A dynamic page where the user can swipe through the suggestions for places and activities, and express their preferences smoothly._
+
+![Suggestions Page](https://via.placeholder.com/800x400)  
+
 ---
 
 ## Future Enhancements
