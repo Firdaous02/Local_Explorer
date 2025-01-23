@@ -97,23 +97,30 @@ Follow these steps to set up the project locally:
 ### Landing Page
 _A visually appealing landing page with a background image and a bold call-to-action._
 
-![Landing Page](https://via.placeholder.com/800x400)  
+![Landing Page](https://github.com/user-attachments/assets/29554fc1-256b-4eb1-bd2e-475b57c1974f)
 
 ### Features Section
 _A layout showcasing the platform's core features with images, titles, and descriptions._
 
-![Features Section](https://via.placeholder.com/800x400)  
+![Features Page](https://github.com/user-attachments/assets/70df8c7d-2f9b-4866-a0d6-ae460c57da90)
+
+![activities](https://github.com/user-attachments/assets/f414fbbd-a5b1-4b7e-8c90-51e00ed7d424)
 
 ### Login or Register
 _The users can log in if they already have an account, and if they don't, they are required to register._
 
-![Login](https://via.placeholder.com/800x400)  
-![Register](https://via.placeholder.com/800x400)  
+![login](https://github.com/user-attachments/assets/ea235deb-b9a3-4780-a664-e7d2b93a4294)
+
+![Register](https://github.com/user-attachments/assets/fafffb36-3167-469a-9d04-8fe349e91dee)
 
 ### Suggestions Page
 _A dynamic page where the user can swipe through the suggestions for places and activities, and express their preferences smoothly._
 
-![Suggestions Page](https://via.placeholder.com/800x400)  
+![loading](https://github.com/user-attachments/assets/5786908e-8726-4f2f-8062-9359f89c97b0)
+
+![suggestion](https://github.com/user-attachments/assets/afed9252-d6c0-4ef6-ae01-c6a29aa51db4)
+
+![again](https://github.com/user-attachments/assets/852bd941-7411-490e-a0b2-c1651129f05b)
 
 ---
 
