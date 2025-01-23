@@ -7,6 +7,7 @@ import re
 from dotenv import load_dotenv
 import os
 from models import db, User
+from sqlalchemy import create_engine, text
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -29,6 +30,20 @@ WEATHER_API_KEY = os.getenv('WEATHER_API_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
 openai.api_key = OPENAI_API_KEY
+
+def create_database():
+    db_name = os.getenv('DB_NAME')
+    engine = create_engine(f"mysql+mysqlconnector://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/")
+    
+    with engine.connect() as connection:
+        # Vérifier si la base de données existe
+        result = connection.execute(text(f"SHOW DATABASES LIKE '{db_name}'"))
+        if not result.fetchone():
+            # Créer la base de données si elle n'existe pas
+            connection.execute(text(f"CREATE DATABASE {db_name}"))
+            print(f"Base de données '{db_name}' créée avec succès.")
+        else:
+            print(f"La base de données '{db_name}' existe déjà.")
 
 # Routes
 @app.route("/")
@@ -239,5 +254,12 @@ def get_places_coordinates(response, api_key):
 
 if __name__ == '__main__':
     with app.app_context():
+        create_database()
+        
+        app.config['SQLALCHEMY_DATABASE_URI'] = (
+            f"mysql+mysqlconnector://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
+            f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+        )
+        
         db.create_all()
     app.run(debug=True)
