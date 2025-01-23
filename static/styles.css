@@ -1,65 +1,439 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
+    background-color: #000000;
+  }
+/* Background container */
+.background {
+  position: fixed; /* Keeps the background fixed in place */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('images/cycling.jpg'); /* Replace with your image path */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(0, 0, 0, 0.317); /* Semi-transparent black */
+  background-blend-mode: multiply; /* Blend the background with the color */
+  z-index: -1; /* Push the background behind everything else */
+}
+  
+  nav {
+    position: sticky;
+    z-index: 99;
+    width: 100%;
+    background: #000000;
+  }
+  
+  nav .wrapper {
+    max-width: 1300px;
+    padding: 0px 50px;
+    height: 70px;
+    line-height: 70px;
+    margin: auto;
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
+    justify-content: space-between; /* Keep space for logo and links */
+    position: relative;
+  }
+  
+  .wrapper .logo {
+    flex: 1; /* Allow logo to take up space on the left */
+  }
+  
+  .wrapper .logo a {
+    color: #f2f2f2;
+    font-size: 28px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .logo img {
+    height: 50px; /* Adjust the height of the logo */
+    width: auto; /* Maintain aspect ratio */
+    display: inline-block; /* Ensure the logo behaves like inline content */
+    vertical-align: middle; /* Align it properly with text, if any */
+    margin-right: 20px; /* Add some space between the logo and text */
+    margin-top: -10px; /* Adjust the vertical alignment */
+}
+  
+  .wrapper .nav-links {
+    display: flex; /* Use flexbox to center links */
+    flex: 2; /* Allow nav links to center in the remaining space */    
+  }
+  
+  .nav-links li {
+    list-style: none;
+  }
+  
+  .option{
+    color: #f2f2f2;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 9px 40px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+  }
+  
+  .option:hover {
+    background: #3A3B3C;
+  }
+
+  .btn {
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+    font-weight: 700;
+    padding: 10px 20px; /* Reduce vertical padding */
+    background-color: #f9d73b;
+    border-radius: 30px;
+    display: inline-block; /* Ensures the button behaves like a button */
+    line-height: 1; /* Prevents extra vertical spacing */
+    transition: all 0.3s ease;
+
 }
 
-.container {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    text-align: center;
+  .btn:hover {
+        background: #3A3B3C;
+        color: #ffffff;
+   }
+.title {
+position: absolute;
+top: 170px; /* Adjust to position the title vertically */
+left: 50px; /* Adjust to position the title horizontally */
+text-align: left; /* Align text to the right */
+color: #f9d73b; /* Make it stand out on the background */
+}
+
+.title h1 {
+  font-size: 90px; /* Big font size */
+  font-family: "Impact", sans-serif;
+  font-weight: lighter;
+  text-transform: uppercase; /* Converts text to uppercase */
+  margin: 0; /* Remove default margins */
+  line-height: 1.0; /* Adjust line height for multi-line text */
+}
+.start-btn {
+  margin-top: 30px;
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  font-size: 25px;
+  font-weight: 700;
+  padding: 10px 20px; /* Reduce vertical padding */
+  background-color: #000000;
+  border-radius: 30px;
+  display: inline-block; /* Ensures the button behaves like a button */
+  transition: all 0.3s ease;
+
+}
+
+.start-btn:hover {
+      background: #f9d73b;
+      color: #000000;
+ }
+/* Features Section */
+#features-section {
+  padding: 60px 20px; /* Add padding for spacing */
+  background-color: #000; /* Match the dark theme */
+  color: #f2f2f2;
+  text-align: center;
+}
+
+.features-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  gap: 20px; /* Add space between features */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature {
+  flex: 1 1 30%; /* Adjust width for each feature */
+  max-width: 350px; /* Optional: Limit maximum size */
+  text-align: center;
+  background-color: #1a1a1a; /* Card background color */
+  padding: 20px;
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature:hover {
+  transform: scale(1.05); /* Slight zoom on hover */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.feature img {
+  width: 300px; /* Adjust size for icons/images */
+  height: auto;
+  margin-bottom: 15px;
+}
+
+.feature h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #f9d73b; /* Highlight title */
+}
+
+.feature p {
+  font-size: 16px;
+  line-height: 1.6;
+}
+.spacer {
+  height: 700px; /* Add space between sections */
+}
+
+.collage {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  gap: 17px; /* Add space between pictures */
+  max-width: 1200px;
+  margin: 0 auto;
+
+}
+
+.image-container img {
+  width: 300px;
+  height: auto;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.image-container img:hover {
+  transform: scale(1.1);
 }
 
 h2 {
-    margin-bottom: 20px;
-    color: #333;
+  font-size: 30px;
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 30px;
+  margin-top: 50px;
+}
+.activities{
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  max-width: 1000px;
+  margin: 40px auto;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 18px;
+  color: #ffffff;
+}
+.footer-dark {
+  padding:50px 0;
+  color:#f0f9ff65;
+  background-color:#000000;
 }
 
-form label {
-    display: block;
-    margin-bottom: 8px;
-    text-align: left;
-    color: #555;
+.footer-dark .copyright {
+  text-align:center;
+  padding-top:24px;
+  font-size:15px;
+  margin-bottom:0;
 }
 
-form input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+/* Login and register page */
+.login {
+  font-family: Arial, sans-serif;
+  background-color: #000000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
 }
 
-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.login .container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  text-align: center;
 }
 
-button:hover {
-    background-color: #0056b3;
+.login h2 {
+  margin-bottom: 20px;
+  color: #333;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
+.login form label {
+  display: block;
+  margin-bottom: 8px;
+  text-align: left;
+  color: #555;
 }
 
-ul li.success {
-    color: green;
+.login form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-ul li.danger {
-    color: red;
+.login button {
+  width: 100%;
+  padding: 10px;
+  background-color: #f9d73b;
+  color: #000000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 800;
+  transition: all 0.3s ease;
+
+}
+
+.login button:hover {
+  background-color: #000000;
+  color: #fff;
+}
+
+.login ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.login ul li.success {
+  color: green;
+}
+
+.login ul li.danger {
+  color: red;
+}
+
+.login a{
+  color:#000;
+  font-weight: 600;
+}
+
+.location-agreement {
+  display: flex; /* Aligns the two divs horizontally */
+  align-items: center; /* Centers checkbox and label vertically */
+  gap: 10px; /* Adds spacing between the checkbox and label */
+}
+
+.location-agreement input[type="checkbox"] {
+  accent-color: #f9d73b; /* Changes the color of the checkbox */
+}
+
+.checkbox-wrapper {
+margin-top: 8.3px;
+flex-shrink: 0; /* Prevents the checkbox from growing */
+}
+
+.label-wrapper {
+  flex-grow: 1; /* Allows the label to take up the remaining space */
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* suggestions */
+
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #ffffff;
+}
+
+.suggestions h1 {
+  margin-bottom: 20px;
+}
+
+#result {
+  width: 100%;
+  max-width: 400px; /* Limite la largeur des cartes */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  height: 500px; /* Hauteur fixe pour le conteneur des cartes */
+}
+
+.suggestions .map-container {
+  height: 200px; /* Réduire la hauteur de la carte */
+  width: 100%;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.suggestions .suggestion-container {
+  width: 100%;
+  max-width: 400px; /* Largeur maximale des cartes */
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  color: #000000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0; /* Masquer toutes les cartes par défaut */
+  pointer-events: none; /* Désactiver les interactions par défaut */
+}
+
+.suggestions .suggestion-container.active {
+  opacity: 1; /* Afficher la carte active */
+  pointer-events: auto; /* Activer les interactions pour la carte active */
+}
+
+.suggestions .suggestion-container.hidden {
+  display: none; /* Masquer complètement la carte */
+}
+
+/* Style pour custom FontAwesome markers */
+.suggestions .custom-marker {
+  background-color: #ff0000; /* Red background color */
+  color: white; /* Icon color */
+  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%; /* Circular shape */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
+}
+
+/* Style pour le marqueur de l'utilisateur */
+.suggestions .user-marker {
+  background-color: #f9d73b; /* Background color */
+  color: white; /* Icon color */
+  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%; /* Circular shape */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
+}
+
+/* Style pour les cartes swipées */
+.suggestions .swiped-left {
+  transform: translateX(-150%) translateX(-50%);
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.suggestions .swiped-right {
+  transform: translateX(150%) translateX(-50%);
+  transition: all 0.3s ease;
+  opacity: 0;
 }

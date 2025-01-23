@@ -6,7 +6,7 @@
     <title>Register</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
+<body class="login">
     <div class="container">
         <h2>Register</h2>
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -25,13 +25,19 @@
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required>
             
-            <div>
-                <input type="checkbox" id="location-agreement" name="location-agreement" required>
-                <label for="location-agreement">I agree to the use of my location</label>
+            <div class="location-agreement">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="location-agreement" name="location-agreement" required>
+                </div>
+                <div class="label-wrapper">
+                    <label for="location-agreement">I agree to the use of my location</label>
+                </div>
             </div>
             
             <button type="submit">Register</button>
         </form>
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a>.</p>
+
     </div>
 </body>
 </html>

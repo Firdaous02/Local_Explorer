@@ -7,7 +7,7 @@
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
@@ -17,106 +17,7 @@
     <!-- Hammer.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
 
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        #result {
-            width: 100%;
-            max-width: 400px; /* Limite la largeur des cartes */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            height: 500px; /* Hauteur fixe pour le conteneur des cartes */
-        }
-
-        .map-container {
-            height: 200px; /* Réduire la hauteur de la carte */
-            width: 100%;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .suggestion-container {
-            width: 100%;
-            max-width: 400px; /* Largeur maximale des cartes */
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background-color: #f9f9f9;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            opacity: 0; /* Masquer toutes les cartes par défaut */
-            pointer-events: none; /* Désactiver les interactions par défaut */
-        }
-
-        .suggestion-container.active {
-            opacity: 1; /* Afficher la carte active */
-            pointer-events: auto; /* Activer les interactions pour la carte active */
-        }
-
-        .suggestion-container.hidden {
-            display: none; /* Masquer complètement la carte */
-        }
-
-        /* Style pour custom FontAwesome markers */
-        .custom-marker {
-            background-color: #ff0000; /* Red background color */
-            color: white; /* Icon color */
-            font-size: 16px;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%; /* Circular shape */
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            border: 2px solid white;
-        }
-
-        /* Style pour le marqueur de l'utilisateur */
-        .user-marker {
-            background-color: #007bff; /* Background color */
-            color: white; /* Icon color */
-            font-size: 16px;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%; /* Circular shape */
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            border: 2px solid white;
-        }
-
-        /* Style pour les cartes swipées */
-        .swiped-left {
-            transform: translateX(-150%) translateX(-50%);
-            opacity: 0;
-        }
-
-        .swiped-right {
-            transform: translateX(150%) translateX(-50%);
-            opacity: 0;
-        }
-    </style>
 
     <script>
         let currentIndex = 0; // Index de la carte actuellement affichée
@@ -206,6 +107,9 @@
                                 if (event.type === 'swipeleft') {
                                     suggestionContainer.classList.add('swiped-left');
                                     console.log('Suggestion disliked:', item.activity);
+
+                                    // Envoyer une requête à /dislike
+                                    dislikeSuggestion(item);
                                 } else if (event.type === 'swiperight') {
                                     suggestionContainer.classList.add('swiped-right');
                                     console.log('Suggestion liked:', item.activity);
@@ -233,6 +137,31 @@
             });
         }
 
+        async function dislikeSuggestion(item) {
+            try {
+                const response = await fetch("/dislike", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        activity: item.activity,
+                        place: item.place,
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Dislike response:", data);
+                } else {
+                    const error = await response.json();
+                    console.error("Failed to dislike:", error.error);
+                }
+            } catch (error) {
+                console.error("Error disliking suggestion:", error);
+            }
+        }
+
         function showNextCard() {
             const cards = document.querySelectorAll('.suggestion-container');
             if (currentIndex < cards.length) {
@@ -253,7 +182,7 @@
         });
     </script>
 </head>
-<body>
+<body class="suggestions">
     <h1>Activity Suggestions Based on Weather</h1>
 
     <button onclick="fetchSuggestions()">Get Suggestions</button>
